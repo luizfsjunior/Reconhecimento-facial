@@ -1,5 +1,8 @@
 import numpy as np
 import argparse
+from scipy import stats
+import statistics
+import math
 import matplotlib.pyplot as plt
 import cv2
 from tensorflow.keras.models import Sequential
@@ -121,6 +124,7 @@ elif mode == "display":
                     3: "Happy", 4: "Neutral", 5: "Sad", 6: "Surprised"}
 
     # start the webcam feed
+    emotion_vet = []
     cap = cv2.VideoCapture(0)
     while True:
         # Find haar cascade to draw bounding box around face
@@ -138,9 +142,15 @@ elif mode == "display":
             roi_gray = gray[y:y + h, x:x + w]
             cropped_img = np.expand_dims(np.expand_dims(
                 cv2.resize(roi_gray, (48, 48)), -1), 0)
-            prediction = model.predict(cropped_img)
-            maxindex = int(np.argmax(prediction))
-            cv2.putText(frame, emotion_dict[maxindex], (x+20, y-60),
+            
+            for i in range(30):
+                prediction = model.predict(cropped_img)
+                maxindex = int(np.argmax(prediction))
+                emotion_vet.append(maxindex)
+           
+            moda_emotion = statistics.mode(emotion_vet)
+            print(moda_emotion)
+            cv2.putText(frame, emotion_dict[moda_emotion], (x+20, y-60),
                         cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
 
         cv2.imshow('Video', cv2.resize(
